@@ -1,32 +1,119 @@
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Login BOLT</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BOLT | Login</title>
+
+    <!-- Import Tailwind CSS. -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Koneksi ke server Google untuk ambil font dari Google Fonts. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Ambil font spesifik. -->
+    <link href="https://googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Metrophobic&display=swap" rel="stylesheet">
+
+    <!-- Ganti font default jadi font yang baru, pakai class sans dan serif. -->
+    <script>
+    tailwind.config = {
+        theme: {
+        extend: {
+            fontFamily: {
+            'sans': ['Metrophobic', 'sans-serif'],
+            'serif': ['EB Garamond', 'serif'],
+            },
+        },
+        },
+    }
+    </script>
+
 </head>
-<body>
+<!-- Atur tinggi halaman memenuhi layar (h), kasih warna bg, atur posisi kotak login di tengah. -->
+<body class="min-h-screen bg-[#0D4C99] flex items-center justify-center p-4">
 
-    <h2>Login Sistem BOLT</h2>
+    <!-- Kotak login. -->
+    <div class="w-full max-w-5xl min-h-[450px] bg-white rounded-2xl
+                p-6 md:p-8 grid grid-cols-1 md:grid-cols-2
+                items-center gap-8">
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% for category, message in messages %}
-            <p>{{ message }}</p>
-        {% endfor %}
-    {% endwith %}
+        <!-- Logo. -->
+        <div class="flex justify-center items-center">
+            <img
+                src="{{ url_for('static', filename='images/bolt-no-bg.png') }}"
+                alt="Logo BOLT"
+                class="w-72 md:w-80 h-auto object-contain"
+            >
+        </div>
 
-    <form method="POST" action="{{ url_for('auth.login') }}">
-        <label>Username</label>
-        <input type="text" name="username" required>
+        <!-- Form login. -->
+        <div class="w-full max-w-md mx-auto border-2 border-gray-700
+                    rounded-2xl px-6 py-10 md:px-8 md:py-14">
 
-        <br><br>
+            <h1 class="text-4xl text-center font-normal text-gray-900 mb-8 font-sans">
+                LOGIN
+            </h1>
 
-        <label>Password</label>
-        <input type="password" name="password" required>
+            <!-- Notifikasi error/berhasil yang diambil dari auth.py. -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% for category, message in messages %}
+                    <div class="mb-4 p-3 rounded-lg text-sm
+                        {% if category == 'error' %}
+                            bg-red-100 text-red-700
+                        {% else %}
+                            bg-green-100 text-green-700
+                        {% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endwith %}
 
-        <br><br>
+            <!-- Form. -->
+            <form method="POST" action="{{ url_for('auth.login') }}">
 
-        <button type="submit">Login</button>
-    </form>
+                <!-- Input username. -->
+                <div class="mb-5">
+                    <input
+                        type="text"
+                        name="username"
+                        placeholder="Username"
+                        required
+                        autocomplete="username"
+                        class="w-full h-11 px-3 border border-gray-400
+                               rounded-sm text-sm
+                               focus:outline-none focus:border-blue-600 font-serif"
+                    >
+                </div>
+
+                <!-- Input password. -->
+                <div class="mb-6">
+                    <input
+                        type="password"
+                        name="password"
+                        placeholder="Password"
+                        required
+                        autocomplete="current-password"
+                        class="w-full h-11 px-3 border border-gray-400
+                               rounded-sm text-sm
+                               focus:outline-none focus:border-blue-600 font-serif"
+                    >
+                </div>
+
+                <!-- Tombol login. -->
+                <div class="flex justify-center">
+                    <button
+                        type="submit"
+                        class="w-28 h-9 bg-[#F1CC0A] hover:bg-[#D9B709] text-gray-900 text-lg rounded-lg transition duration-200 font-serif"
+>
+                        Login
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
 
 </body>
 </html>
