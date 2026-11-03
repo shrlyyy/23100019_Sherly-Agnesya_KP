@@ -1,4 +1,4 @@
-from flask import Flask, redirect, url_for, session
+from flask import Flask, redirect, url_for, session, render_template, flash
 from functools import wraps
 from dotenv import load_dotenv
 import os
@@ -22,10 +22,12 @@ def login_required(role=None):
 
             # User sudah login?
             if not session.get("user_id"):
+                flash("Login terlebih dahulu untuk mengakses halaman ini!", "error")
                 return redirect(url_for("auth.login"))
 
             # Cek role user.
             if role and session.get("role") != role:
+                flash("Akses ditolak!", "error")
                 return redirect(url_for("auth.login"))
 
             return function(*args, **kwargs)
@@ -38,14 +40,14 @@ def login_required(role=None):
 @app.route("/owner/dashboard")
 @login_required(role="owner")
 def dashboard_owner():
-    return "<h1>Dashboard Owner BOLT</h1>"
+    return render_template("dashboard_owner.html")
 
 
 # Dashboard Admin
 @app.route("/admin/dashboard")
 @login_required(role="admin")
 def dashboard_admin():
-    return "<h1>Dashboard Admin BOLT</h1>"
+    return render_template("dashboard_admin.html")
 
 
 if __name__ == "__main__":
