@@ -5,16 +5,16 @@ from database import get_db_connection
 
 auth_bp = Blueprint("auth", __name__)
 
-
+# Fitur login pakai get untuk buka halaman, post waktu login.
 @auth_bp.route("/", methods=["GET", "POST"])
 def login():
 
-    # Arahkan pengguna yang sudah login sesuai role
+    # Arahkan pengguna yang sudah login sesuai role.
     if session.get("user_id"):
         if session.get("role") == "owner":
-            return redirect(url_for("dashboard_owner"))
+            return redirect(url_for("dashboard_owner")) # Kalau udah login.
         elif session.get("role") == "admin":
-            return redirect(url_for("dashboard_admin"))
+            return redirect(url_for("dashboard_admin")) # Kalau udah login.
 
     if request.method == "POST":
         username = request.form.get("username", "").strip()
@@ -35,6 +35,7 @@ def login():
 
         connection = None
 
+# Cari ke database.
         try:
             connection = get_db_connection()
             cursor = connection.cursor(dictionary=True)
@@ -66,6 +67,7 @@ def login():
             session["username"] = user["username"]
             session["role"] = user["role"]
 
+            # Arahkan ke halaman masing-masing jika berhasil.
             if user["role"] == "owner":
                 return redirect(url_for("dashboard_owner"))
 
