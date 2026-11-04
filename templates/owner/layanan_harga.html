@@ -1,0 +1,332 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kelola Layanan dan Harga | BOLT</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 min-h-screen">
+
+<div class="max-w-6xl mx-auto p-6">
+
+    <h1 class="text-2xl font-bold text-gray-800 mb-6">
+        Kelola Layanan dan Harga
+    </h1>
+
+    <!-- Flash Message -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="mb-4 p-3 rounded-lg
+                {% if category == 'error' %}
+                    bg-red-100 text-red-700
+                {% elif category == 'info' %}
+                    bg-blue-100 text-blue-700
+                {% else %}
+                    bg-green-100 text-green-700
+                {% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endwith %}
+
+
+    <!-- FORM TAMBAH / EDIT -->
+    <div class="bg-white p-6 rounded-xl shadow mb-6">
+
+        {% if layanan_edit %}
+
+            <h2 class="text-lg font-semibold mb-5">
+                Edit Layanan dan Harga
+            </h2>
+
+            <form method="POST"
+                  action="{{ url_for(
+                      'layanan_harga.simpan_edit_layanan',
+                      id_layanan=layanan_edit.id_jenis_layanan
+                  ) }}">
+
+        {% else %}
+
+            <h2 class="text-lg font-semibold mb-5">
+                Tambah Jenis Layanan
+            </h2>
+
+            <form method="POST"
+                  action="{{ url_for('layanan_harga.tambah_layanan') }}">
+
+        {% endif %}
+
+            <!-- Nama Layanan -->
+            <div class="mb-6">
+
+                <label class="block text-sm font-medium mb-2">
+                    Nama Layanan
+                </label>
+
+                <input
+                    type="text"
+                    name="nama_layanan"
+                    maxlength="16"
+                    required
+                    placeholder="Contoh: Cuci Biasa"
+                    value="{{ layanan_edit.nama_layanan if layanan_edit else '' }}"
+                    class="w-full border border-gray-300 rounded-lg px-4 py-2
+                           focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+
+            </div>
+
+
+            <!-- Harga per Jenis Kendaraan -->
+            <div class="mb-6">
+
+                <h3 class="font-semibold text-gray-800 mb-3">
+                    Harga Berdasarkan Jenis Kendaraan
+                </h3>
+
+                <p class="text-sm text-gray-500 mb-4">
+                    Isi harga untuk jenis kendaraan yang memiliki layanan ini.
+                    Kosongkan jika layanan tidak tersedia.
+                </p>
+
+                {% if jenis_kendaraan %}
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                        {% for jenis in jenis_kendaraan %}
+
+                            <div>
+
+                                <label class="block text-sm font-medium mb-2">
+                                    {{ jenis.jenis_kendaraan }}
+                                </label>
+
+                                <div class="flex items-center">
+
+                                    <span class="bg-gray-100 border border-r-0
+                                                 border-gray-300 px-3 py-2
+                                                 rounded-l-lg text-gray-600">
+                                        Rp
+                                    </span>
+
+                                    <input
+                                        type="number"
+                                        name="harga_{{ jenis.id_jenis_kendaraan }}"
+                                        min="1"
+                                        step="1"
+                                        placeholder="Masukkan harga"
+                                        value="{{ harga_edit.get(jenis.id_jenis_kendaraan, '') if harga_edit else '' }}"
+                                        class="w-full border border-gray-300 rounded-r-lg
+                                               px-3 py-2 focus:outline-none
+                                               focus:ring-2 focus:ring-blue-500"
+                                    >
+
+                                </div>
+
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% else %}
+
+                    <div class="bg-yellow-50 text-yellow-700 p-4 rounded-lg">
+                        Belum ada jenis kendaraan yang aktif.
+                        Aktifkan atau tambahkan jenis kendaraan terlebih dahulu.
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- Tombol -->
+            <div class="flex gap-3">
+
+                <button
+                    type="submit"
+                    {% if not jenis_kendaraan %}disabled{% endif %}
+                    class="bg-blue-600 text-white px-5 py-2 rounded-lg
+                           hover:bg-blue-700 disabled:bg-gray-400">
+                    {% if layanan_edit %}
+                        Simpan Perubahan
+                    {% else %}
+                        + Tambah Layanan
+                    {% endif %}
+                </button>
+
+                {% if layanan_edit %}
+
+                    <a href="{{ url_for('layanan_harga.daftar_layanan') }}"
+                       class="px-5 py-2 text-gray-600 hover:underline">
+                        Batal
+                    </a>
+
+                {% endif %}
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+    <!-- DAFTAR LAYANAN -->
+    <div class="bg-white p-6 rounded-xl shadow">
+
+        <h2 class="text-lg font-semibold mb-4">
+            Daftar Layanan dan Harga
+        </h2>
+
+        <div class="overflow-x-auto">
+
+            <table class="w-full text-sm text-left">
+
+                <thead class="bg-gray-100 text-gray-700">
+                    <tr>
+                        <th class="p-3">No.</th>
+                        <th class="p-3">Nama Layanan</th>
+
+                        {% for jenis in jenis_kendaraan %}
+                            <th class="p-3">
+                                {{ jenis.jenis_kendaraan }}
+                            </th>
+                        {% endfor %}
+
+                        <th class="p-3">Status</th>
+                        <th class="p-3">Aksi</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for layanan in daftar_layanan %}
+
+                    <tr class="border-b">
+
+                        <td class="p-3">
+                            {{ loop.index }}
+                        </td>
+
+                        <td class="p-3 font-medium">
+                            {{ layanan.nama_layanan }}
+                        </td>
+
+                        {% for jenis in jenis_kendaraan %}
+
+                            <td class="p-3">
+
+                                {% set harga = layanan.harga.get(jenis.id_jenis_kendaraan) %}
+
+                                {% if harga is not none %}
+                                    Rp{{ "{:,.0f}".format(harga).replace(",", ".") }}
+                                {% else %}
+                                    <span class="text-gray-400">-</span>
+                                {% endif %}
+
+                            </td>
+
+                        {% endfor %}
+
+                        <td class="p-3">
+
+                            {% if layanan.status == 'aktif' %}
+
+                                <span class="bg-green-100 text-green-700
+                                             px-3 py-1 rounded-full">
+                                    Aktif
+                                </span>
+
+                            {% else %}
+
+                                <span class="bg-gray-200 text-gray-600
+                                             px-3 py-1 rounded-full">
+                                    Nonaktif
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <td class="p-3">
+
+                            <div class="flex gap-3 items-center">
+
+                                <!-- Edit -->
+                                <a href="{{ url_for(
+                                    'layanan_harga.edit_layanan',
+                                    id_layanan=layanan.id_jenis_layanan
+                                ) }}"
+                                   class="text-blue-600 hover:underline">
+                                    Edit
+                                </a>
+
+                                {% if layanan.status == 'aktif' %}
+
+                                    <!-- Nonaktifkan -->
+                                    <form method="POST"
+                                          action="{{ url_for(
+                                              'layanan_harga.nonaktifkan_layanan',
+                                              id_layanan=layanan.id_jenis_layanan
+                                          ) }}"
+                                          onsubmit="return confirm('Yakin ingin menonaktifkan layanan ini?')">
+
+                                        <button type="submit"
+                                                class="text-red-600 hover:underline">
+                                            Nonaktifkan
+                                        </button>
+
+                                    </form>
+
+                                {% else %}
+
+                                    <!-- Aktifkan Kembali -->
+                                    <form method="POST"
+                                          action="{{ url_for(
+                                              'layanan_harga.aktifkan_layanan',
+                                              id_layanan=layanan.id_jenis_layanan
+                                          ) }}"
+                                          onsubmit="return confirm('Aktifkan kembali layanan ini?')">
+
+                                        <button type="submit"
+                                                class="text-green-600 hover:underline">
+                                            Aktifkan Kembali
+                                        </button>
+
+                                    </form>
+
+                                {% endif %}
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    {% else %}
+
+                    <tr>
+                        <td colspan="{{ 4 + jenis_kendaraan|length }}"
+                            class="p-5 text-center text-gray-500">
+                            Belum ada data layanan.
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

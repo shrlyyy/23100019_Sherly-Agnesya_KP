@@ -4,6 +4,9 @@ from dotenv import load_dotenv
 import os
 
 from routes.auth import auth_bp
+from routes.pegawai import pegawai_bp
+from routes.jenis_kendaaan import jenis_kendaraan_bp
+from routes.layanan_harga import layanan_harga_bp
 
 load_dotenv()
 
@@ -12,6 +15,24 @@ app.secret_key = os.getenv("SECRET_KEY")
 
 # Route login dan logout.
 app.register_blueprint(auth_bp)
+
+# Route CRUD data pegawai oleh Owner.
+app.register_blueprint(
+    pegawai_bp,
+    url_prefix = "/owner/pegawai"
+)
+
+# Route CRUD data jenis kendaraan oleh Owner.
+app.register_blueprint(
+    jenis_kendaraan_bp,
+    url_prefix = "/owner/jenis-kendaraan"
+)
+
+# Route CRUD data jenis layanan dan harga oleh Owner.
+app.register_blueprint(
+    layanan_harga_bp,
+    url_prefix = "/owner/layanan-dan-harga"
+)
 
 
 # Middleware batasi akses berdasarkan login dan role.

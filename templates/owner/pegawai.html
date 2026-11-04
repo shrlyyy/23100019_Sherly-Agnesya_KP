@@ -1,0 +1,174 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Pegawai | BOLT</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 min-h-screen">
+
+    <div class="max-w-5xl mx-auto p-6">
+
+        <h1 class="text-2xl font-bold text-gray-800 mb-6">
+            Data Pegawai
+        </h1>
+
+        <!-- Flash Message -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="mb-4 p-3 rounded-lg
+                    {% if category == 'error' %}
+                        bg-red-100 text-red-700
+                    {% else %}
+                        bg-green-100 text-green-700
+                    {% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endwith %}
+
+        <!-- Form Tambah / Edit -->
+        <div class="bg-white p-6 rounded-xl shadow mb-6">
+
+            {% if pegawai_edit %}
+                <h2 class="text-lg font-semibold mb-4">Edit Pegawai</h2>
+
+                <form method="POST"
+                      action="{{ url_for('pegawai.simpan_edit_pegawai', id_pegawai=pegawai_edit.id_pegawai) }}">
+
+                    <label class="block text-sm font-medium mb-2">
+                        Nama Pegawai
+                    </label>
+
+                    <input
+                        type="text"
+                        name="nama"
+                        value="{{ pegawai_edit.nama }}"
+                        maxlength="100"
+                        required
+                        class="w-full border rounded-lg px-4 py-2 mb-4"
+                    >
+
+                    <button type="submit"
+                            class="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700">
+                        Simpan Perubahan
+                    </button>
+
+                    <a href="{{ url_for('pegawai.daftar_pegawai') }}"
+                       class="ml-2 text-gray-600">
+                        Batal
+                    </a>
+                </form>
+
+            {% else %}
+                <h2 class="text-lg font-semibold mb-4">Tambah Pegawai</h2>
+
+                <form method="POST"
+                      action="{{ url_for('pegawai.tambah_pegawai') }}">
+
+                    <label class="block text-sm font-medium mb-2">
+                        Nama Pegawai
+                    </label>
+
+                    <input
+                        type="text"
+                        name="nama"
+                        placeholder="Masukkan nama pegawai"
+                        maxlength="100"
+                        required
+                        class="w-full border rounded-lg px-4 py-2 mb-4"
+                    >
+
+                    <button type="submit"
+                            class="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700">
+                        + Tambah Pegawai
+                    </button>
+                </form>
+            {% endif %}
+
+        </div>
+
+        <!-- Tabel Pegawai -->
+        <div class="bg-white p-6 rounded-xl shadow">
+
+            <h2 class="text-lg font-semibold mb-4">
+                Daftar Pegawai
+            </h2>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left">
+
+                    <thead class="bg-gray-100 text-gray-700">
+                        <tr>
+                            <th class="p-3">No.</th>
+                            <th class="p-3">Nama Pegawai</th>
+                            <th class="p-3">Status</th>
+                            <th class="p-3">Aksi</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for pegawai in daftar_pegawai %}
+                        <tr class="border-b">
+
+                            <td class="p-3">{{ loop.index }}</td>
+
+                            <td class="p-3">{{ pegawai.nama }}</td>
+
+                            <td class="p-3">
+                                {% if pegawai.status == 'aktif' %}
+                                    <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full">
+                                        Aktif
+                                    </span>
+                                {% else %}
+                                    <span class="bg-gray-200 text-gray-600 px-3 py-1 rounded-full">
+                                        Nonaktif
+                                    </span>
+                                {% endif %}
+                            </td>
+
+                            <td class="p-3">
+                                <div class="flex gap-2 items-center">
+
+                                    <a href="{{ url_for('pegawai.edit_pegawai', id_pegawai=pegawai.id_pegawai) }}"
+                                       class="text-blue-600 hover:underline">
+                                        Edit
+                                    </a>
+
+                                    {% if pegawai.status == 'aktif' %}
+                                        <form method="POST"
+                                              action="{{ url_for('pegawai.nonaktifkan_pegawai', id_pegawai=pegawai.id_pegawai) }}"
+                                              onsubmit="return confirm('Yakin ingin menonaktifkan pegawai ini?')">
+
+                                            <button type="submit"
+                                                    class="text-red-600 hover:underline">
+                                                Nonaktifkan
+                                            </button>
+                                        </form>
+                                    {% endif %}
+
+                                </div>
+                            </td>
+
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4" class="p-5 text-center text-gray-500">
+                                Belum ada data pegawai.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+
+                </table>
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+</html>
